@@ -1,0 +1,41 @@
+{
+  "name": "tubing-view",
+  "description": "View Pipeline",
+  "version": "0.0.1",
+  "homepage": "https://github.com/mattinsler/tubing-view",
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com",
+    "url": "http://www.mattinsler.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mattinsler/tubing-view.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mattinsler/tubing-view/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/mattinsler/tubing-view/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "dist/tubing-view",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "dependencies": {
+    "debug": "~0.7.2",
+    "betturl": "~0.2.3",
+    "mime": "~1.2.9",
+    "walkabout": "~0.1.4",
+    "tubing": "0.0.2"
+  },
+  "devDependencies": {
+    "mocha": "~1.7.0",
+    "grunt": "~0.3.15",
+    "grunt-contrib": "~0.3.0"
+  },
+  "keywords": []
+}
