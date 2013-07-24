@@ -26,11 +26,10 @@
     "node": ">= 0.8.0"
   },
   "dependencies": {
-    "debug": "~0.7.2",
     "betturl": "~0.2.3",
     "mime": "~1.2.9",
     "walkabout": "~0.1.4",
-    "tubing": "0.0.2"
+    "tubing": "0.0.3"
   },
   "devDependencies": {
     "mocha": "~1.7.0",
