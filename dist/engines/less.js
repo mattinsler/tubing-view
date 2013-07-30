@@ -4,9 +4,13 @@
 
   exports.extension = 'less';
 
+  exports.attr_types = {
+    'text/less': 'less'
+  };
+
   exports.process = function(engine, text, data, callback) {
     var Recess, instance;
-    Recess = require('recess').Constructor;
+    Recess = require(process.cwd() + '/node_modules/recess').Constructor;
     instance = new Recess();
     instance.options.compile = true;
     instance.path = 'path.less';

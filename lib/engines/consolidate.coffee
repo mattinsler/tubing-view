@@ -27,4 +27,4 @@ exports.extensions = [
 ]
 
 exports.process = (engine, text, data, callback) ->
-  require('consolidate')[engine].render(text, data, callback)
+  require(process.cwd() + '/node_modules/consolidate')[engine].render(text, data, callback)

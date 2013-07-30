@@ -4,10 +4,15 @@
 
   exports.extensions = ['sass', 'scss'];
 
+  exports.attr_types = {
+    'text/sass': 'sass',
+    'text/scss': 'scss'
+  };
+
   exports.process = function(engine, text, data, callback) {
     return process.nextTick(function() {
       try {
-        return callback(null, require('sass').render(text));
+        return callback(null, require(process.cwd() + '/node_modules/sass').render(text));
       } catch (err) {
         return callback(err);
       }
