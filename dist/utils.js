@@ -29,73 +29,48 @@
     return require('path').relative(root.absolute_path, path).indexOf('..') === -1;
   };
 
-  exports.resolve_path_from_root = function(root, path, callback) {
-    path = root.join(path);
-    return path.readdir(function(err, files) {
-      var f;
-      if (files != null) {
-        f = find_file('index', files);
-        if ((f != null) && is_path_in_root(root, f.absolute_path)) {
-          return callback(null, f);
-        }
+  exports.resolve_path_from_root = function(root, paths, callback) {
+    var step;
+    if (!Array.isArray(paths)) {
+      paths = [paths];
+    }
+    step = function(idx) {
+      var p, path;
+      if (idx === paths.length) {
+        return callback();
       }
-      return path.directory().readdir(function(err, files) {
+      path = paths[idx];
+      p = root.join(path);
+      return p.directory().readdir(function(err, files) {
+        var f;
         if (files != null) {
-          f = find_file(path.filename, files);
+          f = find_file(p.filename, files);
           if ((f != null) && is_path_in_root(root, f.absolute_path)) {
-            return callback(null, f);
+            return callback(null, f, path);
           }
         }
-        return callback();
+        return step(idx + 1);
       });
-    });
+    };
+    return step(0);
   };
 
-  exports.resolve_path_from_root_sync = function(root, path) {
-    var f;
-    path = root.join(path);
-    try {
-      f = find_file('index', path.readdir_sync());
-      if ((f != null) && is_path_in_root(root, f.absolute_path)) {
-        return f;
-      }
-    } catch (err) {
-
+  exports.resolve_path_from_root_sync = function(root, paths) {
+    var f, p, path, _i, _len;
+    if (!Array.isArray(paths)) {
+      paths = [paths];
     }
-    try {
-      f = find_file(path.filename, path.directory().readdir_sync());
-      if ((f != null) && is_path_in_root(root, f.absolute_path)) {
-        return f;
-      }
-    } catch (err) {
+    for (_i = 0, _len = paths.length; _i < _len; _i++) {
+      path = paths[_i];
+      p = root.join(path);
+      try {
+        f = find_file(p.filename, p.directory().readdir_sync());
+        if ((f != null) && is_path_in_root(root, f.absolute_path)) {
+          return f;
+        }
+      } catch (err) {
 
-    }
-    return null;
-  };
-
-  exports.resolve_path_from_root_with_extension = function(root, path, extension, callback) {
-    var filename;
-    filename = require('path').basename(path);
-    return exports.resolve_path_from_root(root, path, function(err, resolved_path) {
-      if (err != null) {
-        return callback(err);
       }
-      if (resolved_path == null) {
-        return callback();
-      }
-      if (!(resolved_path.filename.startsWith("index." + extension) || resolved_path.filename.startsWith("" + filename + "." + extension))) {
-        return callback();
-      }
-      return callback(null, resolved_path);
-    });
-  };
-
-  exports.resolve_path_from_root_with_extension_sync = function(root, path, extension) {
-    var filename, resolved_path;
-    filename = require('path').basename(path);
-    resolved_path = exports.resolve_path_from_root_sync(root, path);
-    if ((resolved_path != null) && (resolved_path.filename.startsWith("index." + extension) || resolved_path.filename.startsWith("" + filename + "." + extension))) {
-      return resolved_path;
     }
     return null;
   };

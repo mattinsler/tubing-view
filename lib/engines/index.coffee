@@ -83,7 +83,9 @@ exports.get_engine_by_attr_type = (type) ->
   exports.get_engine(ext)
 
 exports.install_engine_by_ext = (ext, callback) ->
-  deps = exports.get_engine(ext).dependencies
+  e = exports.get_engine(ext)
+  return callback(new Error("Could not find engine for extension #{ext}")) unless e?
+  deps = e.dependencies
   return callback() if deps.length is 0
   
   deps.map((d) -> npm_install.bind(null, d)).reduce(q.when, q()).then ->

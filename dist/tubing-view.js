@@ -30,11 +30,12 @@
   };
 
   exports.resolve_path = function(cmd, done) {
-    var path,
+    var path, paths,
       _this = this;
     cmd.parsed = betturl.parse(cmd.path);
     path = cmd.parsed.path.replace(new RegExp('\.' + cmd.content_type + '$'), '');
-    return utils.resolve_path_from_root_with_extension(this.config.path[this.config.resolve_to], path, cmd.content_type, function(err, content_path) {
+    paths = ["" + path + "/index." + cmd.content_type, "" + path + "." + cmd.content_type];
+    return utils.resolve_path_from_root(this.config.path[this.config.resolve_to], paths, function(err, content_path) {
       var engines;
       if (err != null) {
         return done(err);

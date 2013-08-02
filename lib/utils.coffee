@@ -13,47 +13,30 @@ find_file = (needle, haystack) ->
 is_path_in_root = (root, path) ->
   require('path').relative(root.absolute_path, path).indexOf('..') is -1
 
-exports.resolve_path_from_root = (root, path, callback) ->
-  path = root.join(path)
-  path.readdir (err, files) ->
-    if files?
-      f = find_file('index', files)
-      return callback(null, f) if f? and is_path_in_root(root, f.absolute_path)
+exports.resolve_path_from_root = (root, paths, callback) ->
+  paths = [paths] unless Array.isArray(paths)
+  
+  step = (idx) ->
+    return callback() if idx is paths.length
     
-    path.directory().readdir (err, files) ->
+    path = paths[idx]
+    p = root.join(path)
+    p.directory().readdir (err, files) ->
       if files?
-        f = find_file(path.filename, files)
-        return callback(null, f) if f? and is_path_in_root(root, f.absolute_path)
-      
-      callback()
-
-exports.resolve_path_from_root_sync = (root, path) ->
-  path = root.join(path)
-  try
-    f = find_file('index', path.readdir_sync())
-    return f if f? and is_path_in_root(root, f.absolute_path)
-  catch err
+        f = find_file(p.filename, files)
+        return callback(null, f, path) if f? and is_path_in_root(root, f.absolute_path)
+      step(idx + 1)
   
-  try
-    f = find_file(path.filename, path.directory().readdir_sync())
-    return f if f? and is_path_in_root(root, f.absolute_path)
-  catch err
+  step(0)
+
+exports.resolve_path_from_root_sync = (root, paths) ->
+  paths = [paths] unless Array.isArray(paths)
   
-  null
-
-exports.resolve_path_from_root_with_extension = (root, path, extension, callback) ->
-  filename = require('path').basename(path)
-  
-  exports.resolve_path_from_root root, path, (err, resolved_path) ->
-    return callback(err) if err?
-    return callback() unless resolved_path?
-    return callback() unless resolved_path.filename.startsWith("index.#{extension}") or resolved_path.filename.startsWith("#{filename}.#{extension}")
-    callback(null, resolved_path)
-
-exports.resolve_path_from_root_with_extension_sync = (root, path, extension) ->
-  filename = require('path').basename(path)
-
-  resolved_path = exports.resolve_path_from_root_sync(root, path)
-  return resolved_path if resolved_path? and (resolved_path.filename.startsWith("index.#{extension}") or resolved_path.filename.startsWith("#{filename}.#{extension}"))
+  for path in paths
+    p = root.join(path)
+    try
+      f = find_file(p.filename, p.directory().readdir_sync())
+      return f if f? and is_path_in_root(root, f.absolute_path)
+    catch err
   
   null

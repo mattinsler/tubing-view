@@ -120,7 +120,11 @@
   };
 
   exports.install_engine_by_ext = function(ext, callback) {
-    deps = exports.get_engine(ext).dependencies;
+    e = exports.get_engine(ext);
+    if (e == null) {
+      return callback(new Error("Could not find engine for extension " + ext));
+    }
+    deps = e.dependencies;
     if (deps.length === 0) {
       return callback();
     }
