@@ -90,7 +90,7 @@
         return d.resolve(cmd);
       }
       try {
-        return Engines.render(cmd.engines[idx], cmd.content, cmd.data, function(err, data) {
+        return Engines.render(cmd.engines[idx], cmd.content, cmd.data, cmd.resolved.file.absolute_path, function(err, data) {
           if (err != null) {
             return d.reject(err);
           }

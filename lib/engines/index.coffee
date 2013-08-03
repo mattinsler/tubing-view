@@ -97,14 +97,18 @@ exports.install_engine_by_attr_type = (type, callback) ->
   return callback(new Error("Engine script type #{type} is not supported")) unless ext?
   exports.install_engine_by_ext(ext, callback)
 
-exports.render = (engine, text, data, callback) ->
+exports.render = (engine, text, data, filename, callback) ->
   e = exports.get_engine(engine)
   return callback(new Error("Engine #{engine} is not supported")) unless e?
   
-  e.process(engine, text, data, callback)
+  if typeof filename is 'function'
+    callback = filename
+    filename = null
+  
+  e.process(engine, text, data, filename, callback)
 
 exports.render_by_attr_type = (type, text, data, callback) ->
   e = exports.get_engine_by_attr_type(type)
   return callback(new Error("Engine script type #{type} is not supported")) unless e?
   
-  e.process(attr_type_to_ext[type.toLowerCase()], text, data, callback)
+  e.process(attr_type_to_ext[type.toLowerCase()], text, data, null, callback)

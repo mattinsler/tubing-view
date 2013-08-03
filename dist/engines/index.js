@@ -143,12 +143,16 @@
     return exports.install_engine_by_ext(ext, callback);
   };
 
-  exports.render = function(engine, text, data, callback) {
+  exports.render = function(engine, text, data, filename, callback) {
     e = exports.get_engine(engine);
     if (e == null) {
       return callback(new Error("Engine " + engine + " is not supported"));
     }
-    return e.process(engine, text, data, callback);
+    if (typeof filename === 'function') {
+      callback = filename;
+      filename = null;
+    }
+    return e.process(engine, text, data, filename, callback);
   };
 
   exports.render_by_attr_type = function(type, text, data, callback) {
@@ -156,7 +160,7 @@
     if (e == null) {
       return callback(new Error("Engine script type " + type + " is not supported"));
     }
-    return e.process(attr_type_to_ext[type.toLowerCase()], text, data, callback);
+    return e.process(attr_type_to_ext[type.toLowerCase()], text, data, null, callback);
   };
 
 }).call(this);

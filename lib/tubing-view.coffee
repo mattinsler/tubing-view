@@ -65,7 +65,7 @@ exports.render_engines = (cmd) ->
     return d.resolve(cmd) if idx is cmd.engines.length
     
     try
-      Engines.render cmd.engines[idx], cmd.content, cmd.data, (err, data) ->
+      Engines.render cmd.engines[idx], cmd.content, cmd.data, cmd.resolved.file.absolute_path, (err, data) ->
         return d.reject(err) if err?
         cmd.content = data
         step(idx + 1)
