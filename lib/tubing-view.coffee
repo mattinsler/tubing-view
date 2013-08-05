@@ -9,19 +9,29 @@ Engines = exports.Engines = require './engines'
 exports.adapt_http_req = (cmd, done) ->
   cmd.path = cmd.req.url
   
-  content_type = mime.lookup(cmd.path)
-  content_type = cmd.req.accepted[0].value if content_type is 'application/octet-stream'
-  cmd.content_type = mime.extension(content_type)
-  
   cmd.req.view ?= {}
   cmd.req.view.pipeline = @pipeline
   cmd.req.view.command = cmd
   
   done()
 
-exports.resolve_path = (cmd, done) ->
-  cmd.parsed = betturl.parse(cmd.path)
+exports.resolve_content_type = (cmd, done) ->
+  try
+    cmd.parsed = betturl.parse(cmd.path)
   
+    unless cmd.content_type?
+      content_type = mime.lookup(cmd.parsed.path)
+      content_type = cmd.req.accepted[0].value if content_type is 'application/octet-stream' and cmd.req?
+      cmd.content_type = mime.extension(content_type)
+  
+    cmd.mime_type = mime.lookup(cmd.content_type)
+    cmd.mime_charset = mime.charsets.lookup(cmd.mime_type)
+  catch err
+    return done(err)
+  
+  done()
+
+exports.resolve_path = (cmd, done) ->
   path = cmd.parsed.path.replace(new RegExp('\.' + cmd.content_type + '$'), '')
   paths = ["#{path}/index.#{cmd.content_type}", "#{path}.#{cmd.content_type}"]
   
@@ -77,6 +87,7 @@ exports.render_engines = (cmd) ->
   d.promise
 
 exports.ViewPipeline = tubing.pipeline('View Pipeline')
+  .then(exports.resolve_content_type)
   .then(exports.resolve_path)
   .then(tubing.exit_unless('resolved'))
   .then(exports.fetch_content)

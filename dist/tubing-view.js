@@ -14,13 +14,8 @@
   Engines = exports.Engines = require('./engines');
 
   exports.adapt_http_req = function(cmd, done) {
-    var content_type, _base, _ref;
+    var _base, _ref;
     cmd.path = cmd.req.url;
-    content_type = mime.lookup(cmd.path);
-    if (content_type === 'application/octet-stream') {
-      content_type = cmd.req.accepted[0].value;
-    }
-    cmd.content_type = mime.extension(content_type);
     if ((_ref = (_base = cmd.req).view) == null) {
       _base.view = {};
     }
@@ -29,10 +24,28 @@
     return done();
   };
 
+  exports.resolve_content_type = function(cmd, done) {
+    var content_type;
+    try {
+      cmd.parsed = betturl.parse(cmd.path);
+      if (cmd.content_type == null) {
+        content_type = mime.lookup(cmd.parsed.path);
+        if (content_type === 'application/octet-stream' && (cmd.req != null)) {
+          content_type = cmd.req.accepted[0].value;
+        }
+        cmd.content_type = mime.extension(content_type);
+      }
+      cmd.mime_type = mime.lookup(cmd.content_type);
+      cmd.mime_charset = mime.charsets.lookup(cmd.mime_type);
+    } catch (err) {
+      return done(err);
+    }
+    return done();
+  };
+
   exports.resolve_path = function(cmd, done) {
     var path, paths,
       _this = this;
-    cmd.parsed = betturl.parse(cmd.path);
     path = cmd.parsed.path.replace(new RegExp('\.' + cmd.content_type + '$'), '');
     paths = ["" + path + "/index." + cmd.content_type, "" + path + "." + cmd.content_type];
     return utils.resolve_path_from_root(this.config.path[this.config.resolve_to], paths, function(err, content_path) {
@@ -105,7 +118,7 @@
     return d.promise;
   };
 
-  exports.ViewPipeline = tubing.pipeline('View Pipeline').then(exports.resolve_path).then(tubing.exit_unless('resolved')).then(exports.fetch_content).then(exports.create_params).then(exports.render_engines).configure(function(pipeline, config) {
+  exports.ViewPipeline = tubing.pipeline('View Pipeline').then(exports.resolve_content_type).then(exports.resolve_path).then(tubing.exit_unless('resolved')).then(exports.fetch_content).then(exports.create_params).then(exports.render_engines).configure(function(pipeline, config) {
     var k, _i, _len, _ref, _results;
     _ref = config.path;
     _results = [];
