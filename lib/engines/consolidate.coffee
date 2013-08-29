@@ -26,5 +26,5 @@ exports.extensions = [
   'whiskers'
 ]
 
-exports.process = (engine, text, data, filename, callback) ->
-  require(process.cwd() + '/node_modules/consolidate')[engine].render(text, data, callback)
+exports.process = (opts, callback) ->
+  opts.dependencies.consolidate[opts.engine].render(opts.text, opts.data, callback)

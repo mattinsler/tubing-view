@@ -8,13 +8,13 @@
     'text/less': 'less'
   };
 
-  exports.process = function(engine, text, data, filename, callback) {
+  exports.process = function(opts, callback) {
     var Recess, instance;
-    Recess = require(process.cwd() + '/node_modules/recess').Constructor;
+    Recess = opts.dependencies.recess.Constructor;
     instance = new Recess();
     instance.options.compile = true;
-    instance.path = filename || '/path.less';
-    instance.data = text;
+    instance.path = opts.filename || '/path.less';
+    instance.data = opts.text;
     instance.callback = function() {
       if (instance.errors.length > 0) {
         return callback(new Error(instance.errors[0].message));

@@ -8,14 +8,14 @@
     'text/coffeescript': 'coffee'
   };
 
-  exports.process = function(engine, text, data, filename, callback) {
+  exports.process = function(opts, callback) {
     return process.nextTick(function() {
       try {
-        return callback(null, require(process.cwd() + '/node_modules/coffee-script').compile(text, {
+        return callback(null, opts.dependencies['coffee-script'].compile(opts.text, {
           bare: true
         }));
-      } catch (e) {
-        return callback(e);
+      } catch (err) {
+        return callback(err);
       }
     });
   };

@@ -2,7 +2,9 @@ q = require 'q'
 fs = require 'fs'
 path = require 'path'
 {exec} = require 'child_process'
-NPM_PATH = require('path').normalize("#{__dirname}/../../node_modules/.bin/npm")
+
+NPM_PATH = path.normalize("#{__dirname}/../../node_modules/.bin/npm")
+NODE_MODULES_PATH = path.join(__dirname, '..', '..', 'node_modules')
 
 installing = {}
 installed = {}
@@ -15,13 +17,12 @@ npm_install = (pkg) ->
   installing[pkg] = d.promise
   
   try
-    require(process.cwd() + '/node_modules/' + pkg)
+    require(path.join(NODE_MODULES_PATH, pkg))
     installed[pkg] = true
     d.resolve()
   catch err
-    cwd = process.cwd()
-    command = "mkdir -p #{cwd}/node_modules; #{NPM_PATH} install #{pkg} -g --prefix #{cwd}; mv #{cwd}/lib/node_modules/* #{cwd}/node_modules/"
-    command += "; rm -rf #{cwd}/lib" unless fs.existsSync(cwd + '/lib')
+    command = "mkdir -p #{NODE_MODULES_PATH}; #{NPM_PATH} install #{pkg} -g --prefix #{NODE_MODULES_PATH}; mv #{NODE_MODULES_PATH}/lib/node_modules/* #{NODE_MODULES_PATH}/"
+    command += "; rm -rf #{NODE_MODULES_PATH}/lib" unless fs.existsSync(NODE_MODULES_PATH + '/lib')
     
     exec command, {stdio: 'inherit'}, (err) ->
       delete installing[pkg]
@@ -97,6 +98,12 @@ exports.install_engine_by_attr_type = (type, callback) ->
   return callback(new Error("Engine script type #{type} is not supported")) unless ext?
   exports.install_engine_by_ext(ext, callback)
 
+exports.get_engine_dependencies = (engine) ->
+  engine.dependencies.reduce (o, dep) ->
+    o[dep] = require(path.join(NODE_MODULES_PATH, dep))
+    o
+  , {}
+
 exports.render = (engine, text, data, filename, callback) ->
   e = exports.get_engine(engine)
   return callback(new Error("Engine #{engine} is not supported")) unless e?
@@ -105,10 +112,21 @@ exports.render = (engine, text, data, filename, callback) ->
     callback = filename
     filename = null
   
-  e.process(engine, text, data, filename, callback)
+  e.process(
+    engine: engine
+    text: text
+    data: data
+    filename: filename
+    dependencies: exports.get_engine_dependencies(e)
+  , callback)
 
 exports.render_by_attr_type = (type, text, data, callback) ->
   e = exports.get_engine_by_attr_type(type)
   return callback(new Error("Engine script type #{type} is not supported")) unless e?
   
-  e.process(attr_type_to_ext[type.toLowerCase()], text, data, null, callback)
+  e.process(
+    engine: attr_type_to_ext[type.toLowerCase()]
+    text: text
+    data: data
+    dependencies: exports.get_engine_dependencies(e)
+  , callback)

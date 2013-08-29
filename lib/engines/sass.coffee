@@ -4,9 +4,9 @@ exports.attr_types =
   'text/sass': 'sass'
   'text/scss': 'scss'
 
-exports.process = (engine, text, data, filename, callback) ->
+exports.process = (opts, callback) ->
   process.nextTick ->
     try
-      callback(null, require(process.cwd() + '/node_modules/sass').render(text))
+      callback(null, opts.dependencies.sass.render(opts.text))
     catch err
       callback(err)

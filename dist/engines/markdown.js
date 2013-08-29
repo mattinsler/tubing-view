@@ -4,10 +4,10 @@
 
   exports.extensions = ['markdown', 'md'];
 
-  exports.process = function(engine, text, data, filename, callback) {
+  exports.process = function(opts, callback) {
     var marked, pygmentize;
-    marked = require(process.cwd() + '/node_modules/marked');
-    pygmentize = require(process.cwd() + '/node_modules/pygmentize-bundled');
+    marked = opts.dependencies.marked;
+    pygmentize = opts.dependencies['pygmentize-bundled'];
     marked.setOptions({
       highlight: function(code, lang, callback) {
         return pygmentize({
@@ -23,9 +23,9 @@
     });
     return process.nextTick(function() {
       try {
-        return callback(null, marked(text));
-      } catch (e) {
-        return callback(e);
+        return callback(null, marked(opts.text));
+      } catch (err) {
+        return callback(err);
       }
     });
   };

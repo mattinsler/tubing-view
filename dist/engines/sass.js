@@ -9,10 +9,10 @@
     'text/scss': 'scss'
   };
 
-  exports.process = function(engine, text, data, filename, callback) {
+  exports.process = function(opts, callback) {
     return process.nextTick(function() {
       try {
-        return callback(null, require(process.cwd() + '/node_modules/sass').render(text));
+        return callback(null, opts.dependencies.sass.render(opts.text));
       } catch (err) {
         return callback(err);
       }

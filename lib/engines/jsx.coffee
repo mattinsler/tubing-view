@@ -8,11 +8,11 @@ remove_comments = (v) ->
     v = v.slice(v.indexOf('*/', idx) + 2)
   v
 
-exports.process = (engine, text, data, filename, callback) ->
-  text = '/** @jsx React.DOM */\n' + remove_comments(text)
+exports.process = (opts, callback) ->
+  opts.text = '/** @jsx React.DOM */\n' + remove_comments(opts.text)
   
   process.nextTick ->
     try
-      callback(null, require(process.cwd() + '/node_modules/react-tools').transform(text))
-    catch e
-      callback(e)
+      callback(null, opts.dependencies['react-tools'].transform(opts.text))
+    catch err
+      callback(err)

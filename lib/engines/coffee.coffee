@@ -3,9 +3,9 @@ exports.extension = 'coffee'
 exports.attr_types =
   'text/coffeescript': 'coffee'
 
-exports.process = (engine, text, data, filename, callback) ->
+exports.process = (opts, callback) ->
   process.nextTick ->
     try
-      callback(null, require(process.cwd() + '/node_modules/coffee-script').compile(text, bare: true))
-    catch e
-      callback(e)
+      callback(null, opts.dependencies['coffee-script'].compile(opts.text, bare: true))
+    catch err
+      callback(err)

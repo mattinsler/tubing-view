@@ -1,5 +1,5 @@
 (function() {
-  var NPM_PATH, attr_type_to_ext, deps, e, engines, engines_by_ext, exec, ext, file, files, fs, installed, installing, k, npm_install, path, q, v, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+  var NODE_MODULES_PATH, NPM_PATH, attr_type_to_ext, deps, e, engines, engines_by_ext, exec, ext, file, files, fs, installed, installing, k, npm_install, path, q, v, _i, _j, _len, _len1, _ref, _ref1, _ref2;
 
   q = require('q');
 
@@ -9,14 +9,16 @@
 
   exec = require('child_process').exec;
 
-  NPM_PATH = require('path').normalize("" + __dirname + "/../../node_modules/.bin/npm");
+  NPM_PATH = path.normalize("" + __dirname + "/../../node_modules/.bin/npm");
+
+  NODE_MODULES_PATH = path.join(__dirname, '..', '..', 'node_modules');
 
   installing = {};
 
   installed = {};
 
   npm_install = function(pkg) {
-    var command, cwd, d;
+    var command, d;
     if (installed[pkg]) {
       return true;
     }
@@ -26,14 +28,13 @@
     d = q.defer();
     installing[pkg] = d.promise;
     try {
-      require(process.cwd() + '/node_modules/' + pkg);
+      require(path.join(NODE_MODULES_PATH, pkg));
       installed[pkg] = true;
       d.resolve();
     } catch (err) {
-      cwd = process.cwd();
-      command = "mkdir -p " + cwd + "/node_modules; " + NPM_PATH + " install " + pkg + " -g --prefix " + cwd + "; mv " + cwd + "/lib/node_modules/* " + cwd + "/node_modules/";
-      if (!fs.existsSync(cwd + '/lib')) {
-        command += "; rm -rf " + cwd + "/lib";
+      command = "mkdir -p " + NODE_MODULES_PATH + "; " + NPM_PATH + " install " + pkg + " -g --prefix " + NODE_MODULES_PATH + "; mv " + NODE_MODULES_PATH + "/lib/node_modules/* " + NODE_MODULES_PATH + "/";
+      if (!fs.existsSync(NODE_MODULES_PATH + '/lib')) {
+        command += "; rm -rf " + NODE_MODULES_PATH + "/lib";
       }
       exec(command, {
         stdio: 'inherit'
@@ -143,6 +144,13 @@
     return exports.install_engine_by_ext(ext, callback);
   };
 
+  exports.get_engine_dependencies = function(engine) {
+    return engine.dependencies.reduce(function(o, dep) {
+      o[dep] = require(path.join(NODE_MODULES_PATH, dep));
+      return o;
+    }, {});
+  };
+
   exports.render = function(engine, text, data, filename, callback) {
     e = exports.get_engine(engine);
     if (e == null) {
@@ -152,7 +160,13 @@
       callback = filename;
       filename = null;
     }
-    return e.process(engine, text, data, filename, callback);
+    return e.process({
+      engine: engine,
+      text: text,
+      data: data,
+      filename: filename,
+      dependencies: exports.get_engine_dependencies(e)
+    }, callback);
   };
 
   exports.render_by_attr_type = function(type, text, data, callback) {
@@ -160,7 +174,12 @@
     if (e == null) {
       return callback(new Error("Engine script type " + type + " is not supported"));
     }
-    return e.process(attr_type_to_ext[type.toLowerCase()], text, data, null, callback);
+    return e.process({
+      engine: attr_type_to_ext[type.toLowerCase()],
+      text: text,
+      data: data,
+      dependencies: exports.get_engine_dependencies(e)
+    }, callback);
   };
 
 }).call(this);

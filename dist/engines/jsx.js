@@ -17,13 +17,13 @@
     return v;
   };
 
-  exports.process = function(engine, text, data, filename, callback) {
-    text = '/** @jsx React.DOM */\n' + remove_comments(text);
+  exports.process = function(opts, callback) {
+    opts.text = '/** @jsx React.DOM */\n' + remove_comments(opts.text);
     return process.nextTick(function() {
       try {
-        return callback(null, require(process.cwd() + '/node_modules/react-tools').transform(text));
-      } catch (e) {
-        return callback(e);
+        return callback(null, opts.dependencies['react-tools'].transform(opts.text));
+      } catch (err) {
+        return callback(err);
       }
     });
   };

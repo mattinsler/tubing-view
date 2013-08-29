@@ -1,9 +1,9 @@
 exports.dependencies = ['marked', 'pygmentize-bundled']
 exports.extensions = ['markdown', 'md']
 
-exports.process = (engine, text, data, filename, callback) ->
-  marked = require(process.cwd() + '/node_modules/marked')
-  pygmentize = require(process.cwd() + '/node_modules/pygmentize-bundled')
+exports.process = (opts, callback) ->
+  marked = opts.dependencies.marked
+  pygmentize = opts.dependencies['pygmentize-bundled']
   
   marked.setOptions(
     highlight: (code, lang, callback) ->
@@ -14,6 +14,6 @@ exports.process = (engine, text, data, filename, callback) ->
   
   process.nextTick ->
     try
-      callback(null, marked(text))
-    catch e
-      callback(e)
+      callback(null, marked(opts.text))
+    catch err
+      callback(err)
