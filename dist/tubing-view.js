@@ -35,7 +35,11 @@
         }
         cmd.content_type = mime.extension(content_type);
       }
-      cmd.mime_type = mime.lookup(cmd.content_type);
+      try {
+        cmd.mime_type = mime.lookup(cmd.content_type);
+      } catch (err) {
+        cmd.mime_type = 'text/plain';
+      }
       cmd.mime_charset = mime.charsets.lookup(cmd.mime_type);
     } catch (err) {
       return done(err);
