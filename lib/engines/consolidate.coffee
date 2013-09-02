@@ -10,7 +10,6 @@ exports.extensions = [
   'haml'
   'haml-coffee'
   'handlebars'
-  'hogan'
   'jade'
   'jazz'
   'jqtpl'
