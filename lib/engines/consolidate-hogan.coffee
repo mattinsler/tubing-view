@@ -1,4 +1,4 @@
-exports.dependencies = (engine) -> ['consolidate', 'hogan.js']
+exports.dependencies = ['consolidate', 'hogan.js']
 
 # https://npmjs.org/package/consolidate
 exports.extension = 'hogan'

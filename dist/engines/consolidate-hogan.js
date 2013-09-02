@@ -1,8 +1,6 @@
 (function() {
 
-  exports.dependencies = function(engine) {
-    return ['consolidate', 'hogan.js'];
-  };
+  exports.dependencies = ['consolidate', 'hogan.js'];
 
   exports.extension = 'hogan';
 
