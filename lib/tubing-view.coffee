@@ -36,13 +36,14 @@ exports.resolve_content_type = (cmd, done) ->
 
 exports.resolve_path = (cmd, done) ->
   path = cmd.parsed.path.replace(new RegExp('\.' + cmd.content_type + '$'), '')
-  paths = ["#{path}/index.#{cmd.content_type}", "#{path}.#{cmd.content_type}"]
+  paths = ["#{path}.#{cmd.content_type}", "#{path}/index.#{cmd.content_type}", cmd.parsed.path]
   
   # console.log 'RESOLVING PATH', @config.resolve_to, @config.path[@config.resolve_to].absolute_path, path, cmd.content_type
   
   utils.resolve_path_from_root @config.path[@config.resolve_to], paths, (err, content_path) =>
   
   # utils.resolve_path_from_root_with_extension @config.path[@config.resolve_to], path, cmd.content_type, (err, content_path) =>
+    console.log(err.stack) if err?
     return done(err) if err?
     return done() unless content_path?
   

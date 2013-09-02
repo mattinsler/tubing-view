@@ -51,9 +51,12 @@
     var path, paths,
       _this = this;
     path = cmd.parsed.path.replace(new RegExp('\.' + cmd.content_type + '$'), '');
-    paths = ["" + path + "/index." + cmd.content_type, "" + path + "." + cmd.content_type];
+    paths = ["" + path + "." + cmd.content_type, "" + path + "/index." + cmd.content_type, cmd.parsed.path];
     return utils.resolve_path_from_root(this.config.path[this.config.resolve_to], paths, function(err, content_path) {
       var engines;
+      if (err != null) {
+        console.log(err.stack);
+      }
       if (err != null) {
         return done(err);
       }
