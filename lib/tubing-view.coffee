@@ -37,7 +37,8 @@ exports.resolve_content_type = (cmd, done) ->
 exports.resolve_path = (cmd, done) ->
   path = cmd.parsed.path.replace(new RegExp('\.' + cmd.content_type + '$'), '')
   paths = ["#{path}.#{cmd.content_type}", "#{path}/index.#{cmd.content_type}"]
-  paths.push(cmd.parsed.path) unless new RegExp("\\b#{cmd.content_type}\\b").test(cmd.parsed.path.slice(cmd.parsed.path.lastIndexOf('/') + 1))
+  path_base = cmd.parsed.path.slice(cmd.parsed.path.lastIndexOf('/') + 1)
+  paths.push(cmd.parsed.path) if new RegExp("\\b#{cmd.content_type}\\b").test(path_base)
   
   # console.log 'RESOLVING PATH', @config.resolve_to, @config.path[@config.resolve_to].absolute_path, path, cmd.content_type
   

@@ -48,11 +48,12 @@
   };
 
   exports.resolve_path = function(cmd, done) {
-    var path, paths,
+    var path, path_base, paths,
       _this = this;
     path = cmd.parsed.path.replace(new RegExp('\.' + cmd.content_type + '$'), '');
     paths = ["" + path + "." + cmd.content_type, "" + path + "/index." + cmd.content_type];
-    if (!new RegExp("\\b" + cmd.content_type + "\\b").test(cmd.parsed.path.slice(cmd.parsed.path.lastIndexOf('/') + 1))) {
+    path_base = cmd.parsed.path.slice(cmd.parsed.path.lastIndexOf('/') + 1);
+    if (new RegExp("\\b" + cmd.content_type + "\\b").test(path_base)) {
       paths.push(cmd.parsed.path);
     }
     return utils.resolve_path_from_root(this.config.path[this.config.resolve_to], paths, function(err, content_path) {
