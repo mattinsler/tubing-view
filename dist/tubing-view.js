@@ -51,7 +51,10 @@
     var path, paths,
       _this = this;
     path = cmd.parsed.path.replace(new RegExp('\.' + cmd.content_type + '$'), '');
-    paths = ["" + path + "." + cmd.content_type, "" + path + "/index." + cmd.content_type, cmd.parsed.path];
+    paths = ["" + path + "." + cmd.content_type, "" + path + "/index." + cmd.content_type];
+    if (!new RegExp("\\b" + cmd.content_type + "\\b").test(cmd.parsed.path.slice(cmd.parsed.path.lastIndexOf('/') + 1))) {
+      paths.push(cmd.parsed.path);
+    }
     return utils.resolve_path_from_root(this.config.path[this.config.resolve_to], paths, function(err, content_path) {
       var engines;
       if (err != null) {
